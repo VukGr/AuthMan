@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 
 interface IGroup {
+  id?: string,
   name: string,
   permissions: { [name: string]: string | number | boolean }
 }

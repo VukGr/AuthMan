@@ -3,28 +3,26 @@ import Group from '../models/group'
 
 const groupsRouter = express.Router()
 
-groupsRouter.get('/', (_req, res) => {
-  Group.find({}).then(groups => {
-    res.json(groups)
-  })
+groupsRouter.get('/', async (_req, res) => {
+  res.json(await Group.find({}))
 })
 
-groupsRouter.get('/:id', (req, res, next) => {
-  Group.findById(req.params.id).then(group => {
-    if(group) {
-      res.json(group)
-    } else {
-      res.status(404).end()
-    }
-  }).catch(err => next(err))
+groupsRouter.get('/:id', async (req, res) => {
+  const group = await Group.findById(req.params.id)
+
+  if(group) {
+    res.json(group)
+  } else {
+    res.status(404).end()
+  }
 })
 
-groupsRouter.post('/', (req, res) => {
+groupsRouter.post('/', async (req, res) => {
   const body = req.body
 
   if(!body.name) {
     return res.status(400).json({
-      error: 'Name missing.'
+      error: 'Name cannot be empty.'
     })
   }
 
@@ -33,32 +31,36 @@ groupsRouter.post('/', (req, res) => {
     permissions: body.permissions || {}
   })
 
-  newGroup.save().then(savedGroup => res.json(savedGroup))
+  const savedGroup = await newGroup.save()
+  res.status(201).json(savedGroup)
 })
 
-groupsRouter.put('/:id', (req, res, next) => {
+groupsRouter.put('/:id', async (req, res) => {
   const body = req.body
+
+  if(!body.name) {
+    return res.status(400).json({
+      error: 'Name cannot be empty.'
+    })
+  }
 
   const group = {
     name: body.name,
     permissions: body.permissions || {}
   }
 
-  Group.findByIdAndUpdate(req.params.id, group, { new: true })
-    .then(updatedGroup => {
-      if(updatedGroup) {
-        res.json(updatedGroup)
-      } else {
-        res.status(404).end()
-      }
-    })
-    .catch(err => next(err))
+  const updatedGroup = await Group.findByIdAndUpdate(req.params.id, group, { new: true })
+
+  if(updatedGroup) {
+    res.json(updatedGroup)
+  } else {
+    res.status(404).end()
+  }
 })
 
-groupsRouter.delete('/:id', (req, res, next) => {
-  Group.findByIdAndRemove(req.params.id)
-    .then(_ => res.status(204).end())
-    .catch(err => next(err))
+groupsRouter.delete('/:id', async (req, res) => {
+  await Group.findByIdAndRemove(req.params.id)
+  res.status(204).end()
 })
 
 export default groupsRouter

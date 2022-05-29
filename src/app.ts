@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import morgan from 'morgan'
 import mongoose from 'mongoose'
+require('express-async-errors')
 
 import config from './utils/config'
 import logger from './utils/logger'
@@ -20,7 +21,7 @@ mongoose.connect(config.MONGO_URI)
 
 app.use(cors())
 app.use(express.json())
-app.use(morgan('tiny'))
+app.use(morgan('tiny', { skip: (_req, _res) => config.NODE_ENV === 'test'}))
 
 app.use('/groups', groupRouter)
 
