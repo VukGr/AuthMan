@@ -3,6 +3,31 @@ import Group from '../models/group'
 
 const groupsRouter = express.Router()
 
+// Default group operations
+groupsRouter.get('/default', async (_req, res) => {
+  res.json(await Group.find({ default: true }))
+})
+
+groupsRouter.put('/default/:id', async (req, res) => {
+  const newDefaultGroup =
+    await Group.findByIdAndUpdate(req.params.id, { default: true}, { new: true })
+
+  if(newDefaultGroup) {
+    const oldDefaultGroup = 
+      await Group.findOneAndUpdate({ default: true }, { default: false}, { new: true })
+
+    res.json({ 
+      old: oldDefaultGroup, 
+      new: newDefaultGroup, 
+      message: 'Updated successfully' 
+    })
+  } else {
+    res.status(404).json({ error: 'New default group not found.' })
+  }
+})
+
+
+// Group CRUD
 groupsRouter.get('/', async (_req, res) => {
   res.json(await Group.find({}))
 })
@@ -28,7 +53,8 @@ groupsRouter.post('/', async (req, res) => {
 
   const newGroup = new Group({
     name: body.name,
-    permissions: body.permissions || {}
+    permissions: body.permissions || {},
+    default: false
   })
 
   const savedGroup = await newGroup.save()

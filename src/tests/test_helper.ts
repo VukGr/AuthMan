@@ -1,12 +1,15 @@
 import Group from '../models/group'
+import User from '../models/user'
 
 const initialGroups = [
   {
     name: 'User',
+    default: true,
     permissions: {},
   },
   {
     name: 'Admin',
+    default: false,
     permissions: {
       AuthManAdmin: true
     },
@@ -21,13 +24,19 @@ const nonExistingID = async () => {
   return group._id.toString()
 }
 
-const allGroups = async () => {
+const dbAllGroups = async () => {
     const groups = await Group.find({})
     return groups.map(group => group.toJSON())
+}
+
+const dbAllUsers = async () => {
+    const users = await User.find({})
+    return users.map(user => user.toJSON())
 }
 
 export default {
     initialGroups,
     nonExistingID,
-    allGroups
+    dbAllGroups,
+    dbAllUsers
 }
