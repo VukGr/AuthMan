@@ -13,14 +13,13 @@ if(config.NODE_ENV !== 'test') {
 
 // Default group operations
 groupsRouter.get('/default', async (_req, res) => {
-  res.json(await Group.find({ default: true }))
+  res.json(await Group.findOne({ default: true }))
 })
 
-groupsRouter.put('/default', async (req, res) => {
-  const newId = req.body.id
-  if(!newId) {
-    res.status(400).json({ error: 'New default ID not given.' })
-  }
+groupsRouter.put('/default/:id', async (req, res) => {
+  const newId = req.params.id
+  if(!newId)
+    return res.status(400).json({ error: 'New default group ID not given.' })
 
   const oldDefaultGroup = 
     await Group.findOneAndUpdate({ default: true }, { default: false}, { new: true })

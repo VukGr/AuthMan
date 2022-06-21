@@ -16,6 +16,13 @@ const initialGroups = [
   },
 ]
 
+const initialUsers = [
+  {
+    username: 'root',
+    password: 'secret'
+  }
+]
+
 const nonExistingID = async () => {
   const group = new Group({ name: 'willremovethissoon', permissions: {} })
   await group.save()
@@ -36,6 +43,7 @@ const dbAllUsers = async () => {
 
 export default {
     initialGroups,
+    initialUsers,
     nonExistingID,
     dbAllGroups,
     dbAllUsers

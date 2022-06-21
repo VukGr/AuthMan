@@ -6,8 +6,6 @@ import helper from './test_helper'
 
 const api = supertest(app)
 
-//TODO Test default group operations.
-
 describe('Group operations', () => {
   beforeEach(async () => {
     await Group.deleteMany({})
@@ -33,7 +31,6 @@ describe('Group operations', () => {
         .expect(201)
         .expect('Content-Type', /application\/json/)
 
-      // TODO Change to IGroup
       const groupsAtEnd = await helper.dbAllGroups()
       expect(groupsAtEnd).toHaveLength(helper.initialGroups.length + 1)
 
@@ -60,21 +57,18 @@ describe('Group operations', () => {
   })
 
   describe('Read all', () => {
-    test('groups are returned as json', async () => {
-      await api
+    test('succeeds with status code 200', async () => {
+      const res = await api
         .get('/groups')
         .expect(200)
         .expect('Content-Type', /application\/json/)
-    })
 
-    test('all groups are returned', async () => {
-      const res = await api.get('/groups')
       expect(res.body).toHaveLength(helper.initialGroups.length)
     })
   })
 
   describe('Read by id', () => {
-    test('succeeds witha  valid id', async () => {
+    test('succeeds with a valid id', async () => {
       const groupToView = (await helper.dbAllGroups())[0]
       const res = await api
         .get(`/groups/${groupToView.id}`)
@@ -153,17 +147,55 @@ describe('Group operations', () => {
 
   describe('Deletion', () => {
     test('succeeds with status code 204 if id is valid', async () => {
-      const groupToDelete = (await helper.dbAllGroups())[0]
+      const groupToDelete = (await helper.dbAllGroups()).find(g => !g.default)
 
       await api
-        .delete(`/groups/${groupToDelete.id}`)
+        .delete(`/groups/${groupToDelete?.id}`)
         .expect(204)
 
       const groupsAtEnd = await helper.dbAllGroups()
       expect(groupsAtEnd).toHaveLength(helper.initialGroups.length - 1)
 
       const names = groupsAtEnd.map(g => g.name)
-      expect(names).not.toContain(groupToDelete.name)
+      expect(names).not.toContain(groupToDelete?.name)
+    })
+
+    test('failed with status code 400 if group is default', async () => {
+      const groupToDelete = (await helper.dbAllGroups()).find(g => g.default)
+
+      await api
+        .delete(`/groups/${groupToDelete?.id}`)
+        .expect(400)
+
+      const groupsAtEnd = await helper.dbAllGroups()
+      expect(groupsAtEnd).toHaveLength(helper.initialGroups.length)
+
+      const names = groupsAtEnd.map(g => g.name)
+      expect(names).toContain(groupToDelete?.name)
+    })
+  })
+
+  describe('Default group', () => {
+    test('GET succeeds with status code 200', async () => {
+      const res = await api
+        .get('/groups/default')
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+
+      const expectedDefault = helper.initialGroups.find(g => g.default)
+      expect(res.body.name).toContain(expectedDefault?.name)
+    })
+
+    test('PUT succeeds with status code 200 with valid id', async () => {
+      const newDefault = (await helper.dbAllGroups()).find(g => !g.default)
+
+      const res = await api
+        .put(`/groups/default/${newDefault?.id}`)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+
+      const newDefaultUpdated = (await helper.dbAllGroups()).find(g => g.default)
+      expect(newDefaultUpdated?.name).toContain(newDefault?.name)
     })
   })
 })
