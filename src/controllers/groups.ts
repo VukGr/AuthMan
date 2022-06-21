@@ -1,31 +1,41 @@
 import express from 'express'
 import Group from '../models/group'
+import middleware from '../utils/middleware'
 
 const groupsRouter = express.Router()
+
+groupsRouter.use(middleware.authRequired)
+groupsRouter.use(middleware.permissionRequired('AuthManAdmin'))
 
 // Default group operations
 groupsRouter.get('/default', async (_req, res) => {
   res.json(await Group.find({ default: true }))
 })
 
-groupsRouter.put('/default/:id', async (req, res) => {
+groupsRouter.put('/default', async (req, res) => {
+  const newId = req.body.id
+  if(!newId) {
+    res.status(400).json({ error: 'New default ID not given.' })
+  }
+
+  const oldDefaultGroup = 
+    await Group.findOneAndUpdate({ default: true }, { default: false}, { new: true })
+
   const newDefaultGroup =
-    await Group.findByIdAndUpdate(req.params.id, { default: true}, { new: true })
+    await Group.findByIdAndUpdate(newId, { default: true}, { new: true })
 
   if(newDefaultGroup) {
-    const oldDefaultGroup = 
-      await Group.findOneAndUpdate({ default: true }, { default: false}, { new: true })
-
     res.json({ 
       old: oldDefaultGroup, 
       new: newDefaultGroup, 
-      message: 'Updated successfully' 
     })
   } else {
+    // Reset to old group.
+    if(oldDefaultGroup)
+      await Group.findByIdAndUpdate(oldDefaultGroup.id, { default: true})
     res.status(404).json({ error: 'New default group not found.' })
   }
 })
-
 
 // Group CRUD
 groupsRouter.get('/', async (_req, res) => {

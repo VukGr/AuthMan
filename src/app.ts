@@ -8,6 +8,7 @@ import config from './utils/config'
 import logger from './utils/logger'
 import groupRouter from './controllers/groups'
 import usersRouter from './controllers/users'
+import authRouter from './controllers/auth'
 import middleware from './utils/middleware'
 
 const app = express()
@@ -26,6 +27,7 @@ app.use(morgan('tiny', { skip: (_req, _res) => config.NODE_ENV === 'test'}))
 
 app.use('/groups', groupRouter)
 app.use('/users', usersRouter)
+app.use('/auth', authRouter)
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)

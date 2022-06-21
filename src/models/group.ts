@@ -5,7 +5,6 @@ interface IGroup {
   name: string,
   permissions: { [name: string]: string | number | boolean }
   default: boolean
-  users: mongoose.Types.ObjectId[]
 }
 
 const groupSchema = new mongoose.Schema<IGroup>({
@@ -19,13 +18,7 @@ const groupSchema = new mongoose.Schema<IGroup>({
   },
   default: {
     type: Boolean,
-  },
-  users: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    }
-  ]
+  }
 })
 
 groupSchema.set('toJSON', {

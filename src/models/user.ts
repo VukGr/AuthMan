@@ -3,18 +3,14 @@ import mongoose from 'mongoose'
 interface IUser {
   id?: string,
   username: string,
-  name?: string,
   passwordHash: string,
-  group?: mongoose.Types.ObjectId
+  group: mongoose.Types.ObjectId
 }
 
 const userSchema = new mongoose.Schema<IUser>({
   username: {
     type: String,
     required: true
-  },
-  name: {
-    type: String,
   },
   passwordHash: {
     type: String,
