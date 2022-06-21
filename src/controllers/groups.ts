@@ -1,5 +1,6 @@
 import express from 'express'
 import Group from '../models/group'
+import User from '../models/user'
 import middleware from '../utils/middleware'
 
 const groupsRouter = express.Router()
@@ -95,8 +96,18 @@ groupsRouter.put('/:id', async (req, res) => {
 })
 
 groupsRouter.delete('/:id', async (req, res) => {
-  await Group.findByIdAndRemove(req.params.id)
-  res.status(204).end()
+  const groupId = req.params.id
+  const defaultGroup = await Group.findOne({ default: true })
+
+  if(groupId !== defaultGroup?.id) {
+    await Group.findByIdAndRemove(req.params.id)
+    await User.updateMany({ group: req.params.id }, { group: defaultGroup?.id })
+    res.status(204).end()
+  } else {
+    res.status(400).json({
+      error: 'Cannot delete default group.'
+    })
+  }
 })
 
 export default groupsRouter
