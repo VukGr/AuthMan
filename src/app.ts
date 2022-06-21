@@ -10,6 +10,8 @@ import groupRouter from './controllers/groups'
 import usersRouter from './controllers/users'
 import authRouter from './controllers/auth'
 import middleware from './utils/middleware'
+import boot from './utils/boot'
+import {exit} from 'process'
 
 const app = express()
 
@@ -19,6 +21,11 @@ mongoose.connect(config.MONGO_URI)
   })
   .catch(err => {
     logger.error('[mongo]: Error connecting to database: ' + err.message)
+  })
+
+boot.checkDefaultGroup()
+  .catch(_ => {
+    exit(1)  
   })
 
 app.use(cors())
