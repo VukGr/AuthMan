@@ -1,4 +1,5 @@
 import Group from '../models/group'
+import config from './config'
 import logger from './logger'
 
 const checkDefaultGroup = async () => {
@@ -16,12 +17,12 @@ const checkDefaultGroup = async () => {
 
     const adminGroup = new Group({
       name: 'Admin',
-      permissions: {
-        AuthManAdmin: true
-      },
+      permissions: {},
       default: true
     })
 
+    adminGroup.permissions[config.ADMIN_PERM] = true
+ 
     await adminGroup.save()
   }
 }

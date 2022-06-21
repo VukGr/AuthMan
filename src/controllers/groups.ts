@@ -1,12 +1,13 @@
 import express from 'express'
 import Group from '../models/group'
 import User from '../models/user'
+import config from '../utils/config'
 import middleware from '../utils/middleware'
 
 const groupsRouter = express.Router()
 
 groupsRouter.use(middleware.authRequired)
-groupsRouter.use(middleware.permissionRequired('AuthManAdmin'))
+groupsRouter.use(middleware.permissionRequired(config.ADMIN_PERM))
 
 // Default group operations
 groupsRouter.get('/default', async (_req, res) => {

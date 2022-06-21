@@ -2,11 +2,12 @@ import express from 'express'
 import User from '../models/user'
 import Group from '../models/group'
 import middleware from '../utils/middleware'
+import config from '../utils/config'
 
 const usersRouter = express.Router()
 
 usersRouter.use(middleware.authRequired)
-usersRouter.use(middleware.permissionRequired('AuthManAdmin'))
+usersRouter.use(middleware.permissionRequired(config.ADMIN_PERM))
 
 usersRouter.get('/', async (_req, res) => {
   const users = await User.find({})
