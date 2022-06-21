@@ -10,6 +10,8 @@ const errorHandler = (err: Error, _: Request, res: Response, next: NextFunction)
     return res.status(400).json({ error: 'Malformatted id.' })
   } else if (err.name === 'ValidationError') {
     return res.status(400).json({ error: err.message })
+  } else if (err.name === 'JsonWebTokenError') {
+    return res.status(401).json({ error: 'Invalid authorization token.' })
   }
 
   next(err)

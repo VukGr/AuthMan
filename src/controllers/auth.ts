@@ -17,7 +17,7 @@ authRouter.post('/login', async (req, res) => {
     await bcrypt.compare(password, user.passwordHash)
 
   if(!(user && passwordCorrect)) {
-    return res.status(401).json({ error: 'Invalid username or password' })
+    return res.status(401).json({ error: 'Invalid username or password.' })
   }
 
   const userGroup = await Group.findOne({ id: user.group }).lean()

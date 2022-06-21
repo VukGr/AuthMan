@@ -6,8 +6,10 @@ import middleware from '../utils/middleware'
 
 const groupsRouter = express.Router()
 
-groupsRouter.use(middleware.authRequired)
-groupsRouter.use(middleware.permissionRequired(config.ADMIN_PERM))
+if(config.NODE_ENV !== 'test') {
+  groupsRouter.use(middleware.authRequired)
+  groupsRouter.use(middleware.permissionRequired(config.ADMIN_PERM))
+}
 
 // Default group operations
 groupsRouter.get('/default', async (_req, res) => {
